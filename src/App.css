@@ -1,3 +1,21 @@
+/* Estructura principal */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+}
+
+/* Elimina el padding del app-container existente */
+.app-container {
+  padding: 0 !important;
+}
+
 :root {
   --primary: #4361ee;
   --primary-light: #4895ef;
