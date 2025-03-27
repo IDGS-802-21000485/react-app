@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import api from '../services/axiosConfig';
-import '../pages/Usuarios.css';
+import React, { useState, useEffect } from "react";
+import api from "../services/axiosConfig";
+import "../pages/Usuarios.css";
 
 function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [nuevoUsuario, setNuevoUsuario] = useState({
-    nombre: '',
-    apellidos: '',
-    telefono: '',
-    correo: '',
-    contrasena: '',
-    rol: 'docente'
+    nombre: "",
+    apellidos: "",
+    telefono: "",
+    correo: "",
+    contrasena: "",
+    rol: "docente",
   });
   const [usuarioEditando, setUsuarioEditando] = useState(null);
-  const [busqueda, setBusqueda] = useState('');
+  const [busqueda, setBusqueda] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
@@ -22,10 +22,10 @@ function Usuarios() {
   // Obtener usuarios
   const obtenerUsuarios = async () => {
     try {
-      const response = await api.get('usuarios');
+      const response = await api.get("usuarios");
       setUsuarios(response.data);
     } catch (error) {
-      console.error('Error al obtener usuarios:', error);
+      console.error("Error al obtener usuarios:", error);
     }
   };
 
@@ -33,16 +33,26 @@ function Usuarios() {
     obtenerUsuarios();
   }, []);
 
-  // Buscar usuarios
-  const buscarUsuarios = async () => {
-    try {
-      const response = await api.get(`usuarios/buscar?query=${busqueda}`);
-      setUsuarios(response.data);
-    } catch (error) {
-      console.error('Error al buscar usuarios:', error);
-    }
-  };
+   // Buscar usuarios automáticamente mientras se escribe
+   useEffect(() => {
+    const buscarUsuarios = async () => {
+      try {
+        if (busqueda.trim() === "") {
+          await obtenerUsuarios();
+        } else {
+          const response = await api.get(`usuarios/buscar?query=${busqueda}`);
+          setUsuarios(response.data);
+        }
+      } catch (error) {
+        console.error("Error al buscar usuarios:", error);
+        setUsuarios([]); // Vaciar la lista en caso de error
+      }
+    };
 
+    // Se agrega un pequeño retraso para evitar múltiples peticiones rápidas
+    const timeoutId = setTimeout(buscarUsuarios, 300);
+    return () => clearTimeout(timeoutId);
+  }, [busqueda]);
   // Manejar cambios en los inputs
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -58,18 +68,18 @@ function Usuarios() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await api.post('usuarios', nuevoUsuario);
+      await api.post("usuarios", nuevoUsuario);
       await obtenerUsuarios();
       setNuevoUsuario({
-        nombre: '',
-        apellidos: '',
-        telefono: '',
-        correo: '',
-        contrasena: '',
-        rol: 'docente'
+        nombre: "",
+        apellidos: "",
+        telefono: "",
+        correo: "",
+        contrasena: "",
+        rol: "docente",
       });
     } catch (error) {
-      console.error('Error al crear usuario:', error);
+      console.error("Error al crear usuario:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -78,15 +88,9 @@ function Usuarios() {
   // Actualizar usuario
   const actualizarUsuario = async (e) => {
     e.preventDefault();
-    if (!usuarioEditando?._id) {
-      console.error("No hay un usuario seleccionado para editar.");
-      return;
-    }
-  
     setIsSubmitting(true);
     try {
-      const response = await api.put(`usuarios/${usuarioEditando._id}`, usuarioEditando);
-      console.log("Usuario actualizado:", response.data);
+      await api.put(`usuarios/${usuarioEditando._id}`, usuarioEditando);
       await obtenerUsuarios();
       setModalAbierto(false);
       setUsuarioEditando(null);
@@ -96,15 +100,9 @@ function Usuarios() {
       setIsSubmitting(false);
     }
   };
-  
 
   // Eliminar usuario
   const eliminarUsuario = async () => {
-    if (!usuarioAEliminar?._id) {
-      console.error("No hay un usuario seleccionado para eliminar.");
-      return;
-    }
-  
     try {
       await api.delete(`usuarios/${usuarioAEliminar._id}`);
       await obtenerUsuarios();
@@ -114,7 +112,6 @@ function Usuarios() {
       console.error("Error al eliminar usuario:", error);
     }
   };
-  
 
   // Abrir modal de edición
   const abrirModalEdicion = (usuario) => {
@@ -130,7 +127,7 @@ function Usuarios() {
 
   // Generar iniciales para avatar
   const getInitials = (name, lastName) => {
-    return `${name?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+    return `${name?.charAt(0) || ""}${lastName?.charAt(0) || ""}`.toUpperCase();
   };
 
   return (
@@ -138,7 +135,9 @@ function Usuarios() {
       <div className="premium-card">
         <div className="premium-header">
           <h2 className="premium-title">Administración de Usuarios</h2>
-          <p className="premium-subtitle">Gestiona los usuarios del sistema escolar</p>
+          <p className="premium-subtitle">
+            Gestiona los usuarios del sistema escolar
+          </p>
         </div>
 
         <div className="premium-content">
@@ -153,50 +152,45 @@ function Usuarios() {
                   onChange={(e) => setBusqueda(e.target.value)}
                   className="search-input"
                 />
-                <button 
-                  onClick={buscarUsuarios}
-                  className="search-btn"
-                >
-                  Buscar
-                </button>
-                <button 
-                  onClick={obtenerUsuarios}
-                  className="search-btn secondary"
-                >
-                  Mostrar Todos
-                </button>
               </div>
-              
+
               <h3 className="section-title">Usuarios Registrados</h3>
+
               <div className="user-list-container">
-                {usuarios.map((usuario) => (
-                  <div key={usuario._id} className="user-card">
-                    <div className="user-avatar">
-                      {getInitials(usuario.nombre, usuario.apellidos)}
+                {usuarios.length > 0 ? (
+                  usuarios.map((usuario) => (
+                    <div key={usuario._id} className="user-card">
+                      <div className="user-avatar">
+                        {getInitials(usuario.nombre, usuario.apellidos)}
+                      </div>
+                      <div className="user-info">
+                        <h4 className="user-name">
+                          {usuario.nombre} {usuario.apellidos}
+                        </h4>
+                        <p className="user-email">{usuario.correo}</p>
+                        <span className={`user-role ${usuario.rol}`}>
+                          {usuario.rol}
+                        </span>
+                      </div>
+                      <div className="user-actions">
+                        <button
+                          onClick={() => abrirModalEdicion(usuario)}
+                          className="action-btn edit"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => abrirModalEliminacion(usuario)}
+                          className="action-btn delete"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </div>
-                    <div className="user-info">
-                      <h4 className="user-name">{usuario.nombre} {usuario.apellidos}</h4>
-                      <p className="user-email">{usuario.correo}</p>
-                      <span className={`user-role ${usuario.rol}`}>
-                        {usuario.rol}
-                      </span>
-                    </div>
-                    <div className="user-actions">
-                      <button 
-                        onClick={() => abrirModalEdicion(usuario)}
-                        className="action-btn edit"
-                      >
-                        Editar
-                      </button>
-                      <button 
-                        onClick={() => abrirModalEliminacion(usuario)}
-                        className="action-btn delete"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="no-results">No se encontraron usuarios.</p>
+                )}
               </div>
             </div>
 
@@ -268,10 +262,10 @@ function Usuarios() {
 
                 <div className="form-group">
                   <label className="form-label">Rol</label>
-                  <select 
-                    name="rol" 
-                    value={nuevoUsuario.rol} 
-                    onChange={manejarCambio} 
+                  <select
+                    name="rol"
+                    value={nuevoUsuario.rol}
+                    onChange={manejarCambio}
                     className="form-input"
                   >
                     <option value="docente">Docente</option>
@@ -280,8 +274,8 @@ function Usuarios() {
                   </select>
                 </div>
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="submit-btn"
                   disabled={isSubmitting}
                 >
@@ -303,7 +297,7 @@ function Usuarios() {
           <div className="modal">
             <div className="modal-header">
               <h3>Editar Usuario</h3>
-              <button 
+              <button
                 onClick={() => setModalAbierto(false)}
                 className="modal-close"
               >
@@ -354,10 +348,10 @@ function Usuarios() {
               </div>
               <div className="form-group">
                 <label className="form-label">Rol</label>
-                <select 
-                  name="rol" 
-                  value={usuarioEditando.rol} 
-                  onChange={manejarCambio} 
+                <select
+                  name="rol"
+                  value={usuarioEditando.rol}
+                  onChange={manejarCambio}
                   className="form-input"
                 >
                   <option value="docente">Docente</option>
@@ -366,19 +360,19 @@ function Usuarios() {
                 </select>
               </div>
               <div className="modal-actions">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setModalAbierto(false)}
                   className="modal-btn cancel"
                 >
                   Cancelar
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="modal-btn confirm"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+                  {isSubmitting ? "Guardando..." : "Guardar Cambios"}
                 </button>
               </div>
             </form>
@@ -392,7 +386,7 @@ function Usuarios() {
           <div className="modal">
             <div className="modal-header">
               <h3>Confirmar Eliminación</h3>
-              <button 
+              <button
                 onClick={() => setModalEliminarAbierto(false)}
                 className="modal-close"
               >
@@ -400,20 +394,23 @@ function Usuarios() {
               </button>
             </div>
             <div className="modal-body">
-              <p>¿Estás seguro que deseas eliminar al usuario <strong>{usuarioAEliminar.nombre} {usuarioAEliminar.apellidos}</strong>?</p>
+              <p>
+                ¿Estás seguro que deseas eliminar al usuario{" "}
+                <strong>
+                  {usuarioAEliminar.nombre} {usuarioAEliminar.apellidos}
+                </strong>
+                ?
+              </p>
               <p>Esta acción no se puede deshacer.</p>
             </div>
             <div className="modal-actions">
-              <button 
+              <button
                 onClick={() => setModalEliminarAbierto(false)}
                 className="modal-btn cancel"
               >
                 Cancelar
               </button>
-              <button 
-                onClick={eliminarUsuario}
-                className="modal-btn delete"
-              >
+              <button onClick={eliminarUsuario} className="modal-btn delete">
                 Eliminar
               </button>
             </div>
