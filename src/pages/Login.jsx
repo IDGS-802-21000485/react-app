@@ -43,7 +43,7 @@ function Login() {
 
   return (
     <div className="app-container">
-      <div className="card" style={{ maxWidth: '500px' }}>
+      <div className="card">
         <div className="card-header">
           <h1>Bienvenido</h1>
           <p>Sistema de Gestión Escolar</p>
