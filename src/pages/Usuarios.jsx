@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2"; // Importar SweetAlert
 import api from "../services/axiosConfig";
 import "../pages/Usuarios.css";
 
 function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
-  const [nuevoUsuario, setNuevoUsuario] = useState({
+  const [usuarioData, setUsuarioData] = useState({
     nombre: "",
     apellidos: "",
     telefono: "",
     correo: "",
     contrasena: "",
     rol: "docente",
+    fechaRegistro: new Date().toISOString(),
   });
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
-  const [usuarioAEliminar, setUsuarioAEliminar] = useState(null);
 
-  // Obtener usuarios
+  useEffect(() => {
+    obtenerUsuarios();
+  }, []);
+
   const obtenerUsuarios = async () => {
     try {
       const response = await api.get("usuarios");
@@ -30,11 +32,6 @@ function Usuarios() {
   };
 
   useEffect(() => {
-    obtenerUsuarios();
-  }, []);
-
-   // Buscar usuarios automáticamente mientras se escribe
-   useEffect(() => {
     const buscarUsuarios = async () => {
       try {
         if (busqueda.trim() === "") {
@@ -45,89 +42,76 @@ function Usuarios() {
         }
       } catch (error) {
         console.error("Error al buscar usuarios:", error);
-        setUsuarios([]); // Vaciar la lista en caso de error
+        setUsuarios([]);
       }
     };
 
-    // Se agrega un pequeño retraso para evitar múltiples peticiones rápidas
     const timeoutId = setTimeout(buscarUsuarios, 300);
     return () => clearTimeout(timeoutId);
   }, [busqueda]);
-  // Manejar cambios en los inputs
+
   const manejarCambio = (e) => {
     const { name, value } = e.target;
-    if (usuarioEditando) {
-      setUsuarioEditando({ ...usuarioEditando, [name]: value });
-    } else {
-      setNuevoUsuario({ ...nuevoUsuario, [name]: value });
-    }
+    setUsuarioData({ ...usuarioData, [name]: value });
   };
 
-  // Crear usuario
-  const crearUsuario = async (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
     try {
-      await api.post("usuarios", nuevoUsuario);
+      if (usuarioEditando) {
+        await api.put(`usuarios/${usuarioEditando._id}`, usuarioData);
+      } else {
+        await api.post("usuarios", usuarioData);
+      }
       await obtenerUsuarios();
-      setNuevoUsuario({
-        nombre: "",
-        apellidos: "",
-        telefono: "",
-        correo: "",
-        contrasena: "",
-        rol: "docente",
-      });
+      resetFormulario();
     } catch (error) {
-      console.error("Error al crear usuario:", error);
+      console.error("Error al guardar usuario:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Actualizar usuario
-  const actualizarUsuario = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await api.put(`usuarios/${usuarioEditando._id}`, usuarioEditando);
-      await obtenerUsuarios();
-      setModalAbierto(false);
-      setUsuarioEditando(null);
-    } catch (error) {
-      console.error("Error al actualizar usuario:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const resetFormulario = () => {
+    setUsuarioData({
+      nombre: "",
+      apellidos: "",
+      telefono: "",
+      correo: "",
+      contrasena: "",
+      rol: "docente",
+      fechaRegistro: new Date().toISOString(),
+    });
+    setUsuarioEditando(null);
   };
 
-  // Eliminar usuario
-  const eliminarUsuario = async () => {
-    try {
-      await api.delete(`usuarios/${usuarioAEliminar._id}`);
-      await obtenerUsuarios();
-      setModalEliminarAbierto(false);
-      setUsuarioAEliminar(null);
-    } catch (error) {
-      console.error("Error al eliminar usuario:", error);
-    }
+  const editarUsuario = (usuario) => {
+    setUsuarioData(usuario);
+    setUsuarioEditando(usuario);
   };
 
-  // Abrir modal de edición
-  const abrirModalEdicion = (usuario) => {
-    setUsuarioEditando({ ...usuario });
-    setModalAbierto(true);
-  };
-
-  // Abrir modal de eliminación
-  const abrirModalEliminacion = (usuario) => {
-    setUsuarioAEliminar(usuario);
-    setModalEliminarAbierto(true);
-  };
-
-  // Generar iniciales para avatar
-  const getInitials = (name, lastName) => {
-    return `${name?.charAt(0) || ""}${lastName?.charAt(0) || ""}`.toUpperCase();
+  const confirmarEliminarUsuario = (usuario) => {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: `Se eliminará a ${usuario.nombre} ${usuario.apellidos}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`usuarios/${usuario._id}`);
+          await obtenerUsuarios();
+          Swal.fire("Eliminado", "El usuario ha sido eliminado.", "success");
+        } catch (error) {
+          console.error("Error al eliminar usuario:", error);
+          Swal.fire("Error", "No se pudo eliminar el usuario.", "error");
+        }
+      }
+    });
   };
 
   return (
@@ -135,14 +119,11 @@ function Usuarios() {
       <div className="premium-card">
         <div className="premium-header">
           <h2 className="premium-title">Administración de Usuarios</h2>
-          <p className="premium-subtitle">
-            Gestiona los usuarios del sistema escolar
-          </p>
+          <p className="premium-subtitle">Gestiona los usuarios del sistema escolar</p>
         </div>
 
         <div className="premium-content">
           <div className="user-management-grid">
-            {/* Lista de usuarios */}
             <div className="user-list-section">
               <div className="search-container">
                 <input
@@ -161,28 +142,20 @@ function Usuarios() {
                   usuarios.map((usuario) => (
                     <div key={usuario._id} className="user-card">
                       <div className="user-avatar">
-                        {getInitials(usuario.nombre, usuario.apellidos)}
+                        {usuario.nombre.charAt(0)}{usuario.apellidos.charAt(0)}
                       </div>
                       <div className="user-info">
                         <h4 className="user-name">
                           {usuario.nombre} {usuario.apellidos}
                         </h4>
                         <p className="user-email">{usuario.correo}</p>
-                        <span className={`user-role ${usuario.rol}`}>
-                          {usuario.rol}
-                        </span>
+                        <span className={`user-role ${usuario.rol}`}>{usuario.rol}</span>
                       </div>
                       <div className="user-actions">
-                        <button
-                          onClick={() => abrirModalEdicion(usuario)}
-                          className="action-btn edit"
-                        >
+                        <button onClick={() => editarUsuario(usuario)} className="action-btn edit">
                           Editar
                         </button>
-                        <button
-                          onClick={() => abrirModalEliminacion(usuario)}
-                          className="action-btn delete"
-                        >
+                        <button onClick={() => confirmarEliminarUsuario(usuario)} className="action-btn delete">
                           Eliminar
                         </button>
                       </div>
@@ -194,15 +167,16 @@ function Usuarios() {
               </div>
             </div>
 
-            {/* Formulario de registro */}
             <div className="form-section">
-              <h3 className="section-title">Registrar Nuevo Usuario</h3>
-              <form onSubmit={crearUsuario} className="premium-form">
+              <h3 className="section-title">
+                {usuarioEditando ? "Editar Usuario" : "Registrar Nuevo Usuario"}
+              </h3>
+              <form onSubmit={manejarEnvio} className="premium-form">
                 <div className="form-group">
                   <label className="form-label">Nombre</label>
                   <input
                     name="nombre"
-                    value={nuevoUsuario.nombre}
+                    value={usuarioData.nombre}
                     onChange={manejarCambio}
                     placeholder="Ej. Juan"
                     className="form-input"
@@ -214,7 +188,7 @@ function Usuarios() {
                   <label className="form-label">Apellidos</label>
                   <input
                     name="apellidos"
-                    value={nuevoUsuario.apellidos}
+                    value={usuarioData.apellidos}
                     onChange={manejarCambio}
                     placeholder="Ej. Pérez García"
                     className="form-input"
@@ -226,22 +200,21 @@ function Usuarios() {
                   <label className="form-label">Teléfono</label>
                   <input
                     name="telefono"
-                    value={nuevoUsuario.telefono}
+                    value={usuarioData.telefono}
                     onChange={manejarCambio}
-                    placeholder="Ej. 5551234567"
+                    placeholder="Ej. 555-123-4567"
                     className="form-input"
-                    required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Correo electrónico</label>
+                  <label className="form-label">Correo</label>
                   <input
-                    name="correo"
                     type="email"
-                    value={nuevoUsuario.correo}
+                    name="correo"
+                    value={usuarioData.correo}
                     onChange={manejarCambio}
-                    placeholder="Ej. usuario@escuela.com"
+                    placeholder="Ej. juan@example.com"
                     className="form-input"
                     required
                   />
@@ -250,11 +223,11 @@ function Usuarios() {
                 <div className="form-group">
                   <label className="form-label">Contraseña</label>
                   <input
-                    name="contrasena"
                     type="password"
-                    value={nuevoUsuario.contrasena}
+                    name="contrasena"
+                    value={usuarioData.contrasena}
                     onChange={manejarCambio}
-                    placeholder="••••••••"
+                    placeholder="********"
                     className="form-input"
                     required
                   />
@@ -262,161 +235,21 @@ function Usuarios() {
 
                 <div className="form-group">
                   <label className="form-label">Rol</label>
-                  <select
-                    name="rol"
-                    value={nuevoUsuario.rol}
-                    onChange={manejarCambio}
-                    className="form-input"
-                  >
+                  <select name="rol" value={usuarioData.rol} onChange={manejarCambio} className="form-input">
                     <option value="docente">Docente</option>
                     <option value="administrador">Administrador</option>
-                    <option value="administrativo">Administrativo</option>
+                    <option value="estudiante">Estudiante</option>
                   </select>
                 </div>
 
-                <button
-                  type="submit"
-                  className="submit-btn"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <span className="loading-text">Registrando...</span>
-                  ) : (
-                    <span>Registrar Usuario</span>
-                  )}
+                <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                  {isSubmitting ? "Guardando..." : usuarioEditando ? "Actualizar" : "Registrar"}
                 </button>
               </form>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Modal de Edición */}
-      {modalAbierto && usuarioEditando && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h3>Editar Usuario</h3>
-              <button
-                onClick={() => setModalAbierto(false)}
-                className="modal-close"
-              >
-                &times;
-              </button>
-            </div>
-            <form onSubmit={actualizarUsuario} className="premium-form">
-              <div className="form-group">
-                <label className="form-label">Nombre</label>
-                <input
-                  name="nombre"
-                  value={usuarioEditando.nombre}
-                  onChange={manejarCambio}
-                  className="form-input"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Apellidos</label>
-                <input
-                  name="apellidos"
-                  value={usuarioEditando.apellidos}
-                  onChange={manejarCambio}
-                  className="form-input"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Teléfono</label>
-                <input
-                  name="telefono"
-                  value={usuarioEditando.telefono}
-                  onChange={manejarCambio}
-                  className="form-input"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Correo electrónico</label>
-                <input
-                  name="correo"
-                  type="email"
-                  value={usuarioEditando.correo}
-                  onChange={manejarCambio}
-                  className="form-input"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Rol</label>
-                <select
-                  name="rol"
-                  value={usuarioEditando.rol}
-                  onChange={manejarCambio}
-                  className="form-input"
-                >
-                  <option value="docente">Docente</option>
-                  <option value="administrador">Administrador</option>
-                  <option value="administrativo">Administrativo</option>
-                </select>
-              </div>
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  onClick={() => setModalAbierto(false)}
-                  className="modal-btn cancel"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="modal-btn confirm"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Guardando..." : "Guardar Cambios"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Eliminación */}
-      {modalEliminarAbierto && usuarioAEliminar && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h3>Confirmar Eliminación</h3>
-              <button
-                onClick={() => setModalEliminarAbierto(false)}
-                className="modal-close"
-              >
-                &times;
-              </button>
-            </div>
-            <div className="modal-body">
-              <p>
-                ¿Estás seguro que deseas eliminar al usuario{" "}
-                <strong>
-                  {usuarioAEliminar.nombre} {usuarioAEliminar.apellidos}
-                </strong>
-                ?
-              </p>
-              <p>Esta acción no se puede deshacer.</p>
-            </div>
-            <div className="modal-actions">
-              <button
-                onClick={() => setModalEliminarAbierto(false)}
-                className="modal-btn cancel"
-              >
-                Cancelar
-              </button>
-              <button onClick={eliminarUsuario} className="modal-btn delete">
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
