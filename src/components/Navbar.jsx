@@ -19,8 +19,8 @@ function Navbar() {
         
         <div className="navbar-links">
           <ul className="nav-list">
-            <li className={`nav-item ${isActive('/')}`}>
-              <Link className="nav-link" to="/">
+            <li className={`nav-item ${isActive('/dashboard')}`}>
+              <Link className="nav-link" to="/dashboard">
                 <span className="link-icon">🏠</span>
                 <span className="link-text">Inicio</span>
               </Link>
@@ -31,9 +31,15 @@ function Navbar() {
                 <span className="link-text">Usuarios</span>
               </Link>
             </li>
+            <li className={`nav-item ${isActive('/categorias')}`}>
+              <Link className="nav-link" to="/categorias">
+                <span className="link-icon">🗂️</span>
+                <span className="link-text">Categorias</span>
+              </Link>
+            </li>
             <li className={`nav-item ${isActive('/documentos')}`}>
               <Link className="nav-link" to="/documentos">
-                <span className="link-icon">👥</span>
+                <span className="link-icon">📄</span>
                 <span className="link-text">Documentos</span>
               </Link>
             </li>
@@ -41,8 +47,10 @@ function Navbar() {
           
           <div className="user-actions">
             <button className="logout-btn">
-              <span className="btn-icon">🚪</span>
-              <span className="btn-text">Salir</span>
+            <Link className="nav-link" to="/">
+                <span className="link-icon">🚪</span>
+                <span className="link-text">Salir</span>
+              </Link>
             </button>
           </div>
         </div>

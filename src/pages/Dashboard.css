@@ -1,0 +1,186 @@
+/* Estilos generales - premium */
+.premium-container {
+  padding: 2rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.premium-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.premium-header {
+  padding: 2rem;
+  background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+  color: white;
+  text-align: center;
+}
+
+.premium-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.premium-subtitle {
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+.premium-content {
+  padding: 2rem;
+}
+
+.section-title {
+  font-size: 1.4rem;
+  color: #2b2d42;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* Estadísticas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.stat-card h3 {
+  color: #64748b;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card p {
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Módulos */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.module-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.module-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.module-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.module-card:hover .module-icon {
+  transform: scale(1.1);
+}
+
+.module-card h3 {
+  color: #2b2d42;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.module-card p {
+  color: #64748b;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+/* Botones */
+.action-btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.action-btn.secondary {
+  background: #64748b;
+}
+
+.action-btn.secondary:hover {
+  background: #475569;
+  transform: translateY(-2px);
+}
+
+/* Mensajes */
+.error-message {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .premium-container {
+      padding: 1rem;
+  }
+  
+  .premium-header {
+      padding: 1.5rem;
+  }
+  
+  .premium-content {
+      padding: 1.5rem;
+  }
+  
+  .stats-grid {
+      grid-template-columns: 1fr;
+  }
+  
+  .modules-grid {
+      grid-template-columns: 1fr;
+  }
+}

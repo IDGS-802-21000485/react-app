@@ -1,0 +1,322 @@
+/* Estilos generales - basados en tu estructura premium */
+.premium-container {
+    padding: 2rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  }
+  
+  .premium-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .premium-header {
+    padding: 2rem;
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+    text-align: center;
+  }
+  
+  .premium-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .premium-subtitle {
+    opacity: 0.9;
+    font-weight: 300;
+  }
+  
+  .premium-content {
+    padding: 2rem;
+  }
+  
+  .user-management-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  
+  .section-title {
+    font-size: 1.4rem;
+    color: #2b2d42;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  
+  /* Formulario */
+  .premium-form {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    height: fit-content;
+  }
+  
+  .form-group {
+    margin-bottom: 1.2rem;
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #2b2d42;
+    font-size: 0.95rem;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: #4361ee;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    background-color: white;
+  }
+  
+  .submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+  }
+  
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+  }
+  
+  .submit-btn:disabled {
+    background: #e2e8f0;
+    color: #64748b;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* Lista de categorías */
+  .user-list-container {
+    display: grid;
+    gap: 1rem;
+    max-height: 65vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+  
+  .user-card {
+    display: flex;
+    align-items: center;
+    padding: 1.2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+  }
+  
+  .user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    border-color: #4361ee;
+  }
+  
+  .user-info {
+    flex: 1;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    color: #2b2d42;
+  }
+  
+  .user-email {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  /* Botones de acción */
+  .user-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .action-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+  
+  .action-btn.edit {
+    background: #4cc9f0;
+    color: white;
+  }
+  
+  .action-btn.edit:hover {
+    background: #3aa8cc;
+  }
+  
+  .action-btn.delete {
+    background: #f72585;
+    color: white;
+  }
+  
+  .action-btn.delete:hover {
+    background: #d3166d;
+  }
+  
+  .action-btn.secondary {
+    background: #64748b;
+    color: white;
+  }
+  
+  .action-btn.secondary:hover {
+    background: #475569;
+  }
+  
+  .action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  /* Búsqueda */
+  .search-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #4361ee;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+  }
+  
+  .search-btn {
+    padding: 0.75rem 1.5rem;
+    background: #4361ee;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .search-btn:hover {
+    background: #3a0ca3;
+  }
+  
+  .search-btn.secondary {
+    background: #64748b;
+  }
+  
+  .search-btn.secondary:hover {
+    background: #475569;
+  }
+  
+  .search-btn:disabled {
+    background: #e2e8f0;
+    color: #64748b;
+    cursor: not-allowed;
+  }
+  
+  /* Estados */
+  .loading-text {
+    display: inline-flex;
+    align-items: center;
+    color: #64748b;
+  }
+  
+  .loading-text::after {
+    content: '...';
+    animation: dots 1.5s steps(3, end) infinite;
+  }
+  
+  .no-results {
+    text-align: center;
+    padding: 2rem;
+    color: #64748b;
+    font-style: italic;
+  }
+  
+  @keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+  }
+  
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .user-management-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .user-list-container {
+      max-height: none;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .premium-container {
+      padding: 1rem;
+    }
+    
+    .premium-header {
+      padding: 1.5rem;
+    }
+    
+    .premium-content {
+      padding: 1.5rem;
+    }
+    
+    .user-card {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .user-actions {
+      margin-top: 1rem;
+      justify-content: center;
+    }
+    
+    .search-container {
+      flex-direction: column;
+    }
+  }
