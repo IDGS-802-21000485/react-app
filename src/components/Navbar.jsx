@@ -31,6 +31,12 @@ function Navbar() {
                 <span className="link-text">Usuarios</span>
               </Link>
             </li>
+            <li className={`nav-item ${isActive('/documentos')}`}>
+              <Link className="nav-link" to="/documentos">
+                <span className="link-icon">👥</span>
+                <span className="link-text">Documentos</span>
+              </Link>
+            </li>
           </ul>
           
           <div className="user-actions">
