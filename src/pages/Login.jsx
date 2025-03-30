@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import api from '../services/axiosConfig';
+import './Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -16,6 +18,11 @@ function Login() {
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron obtener los usuarios',
+        });
       }
     };
     fetchUsers();
@@ -28,62 +35,97 @@ function Login() {
     try {
       const user = users.find(u => u.correo === email && u.contrasena === password);
       if (user) {
-        setTimeout(() => {
-          navigate('/usuarios');
-        }, 1000);
+        Swal.fire({
+          icon: 'success',
+          title: '¡Bienvenido!',
+          text: 'Inicio de sesión exitoso',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          navigate('/dashboard');
+        });
       } else {
-        alert('Credenciales incorrectas');
+        Swal.fire({
+          icon: 'error',
+          title: 'Credenciales incorrectas',
+          text: 'Verifica tu correo y contraseña',
+        });
         setIsLoading(false);
       }
     } catch (error) {
       console.error('Login error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema al iniciar sesión',
+      });
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="app-container">
-      <div className="card">
-        <div className="card-header">
-          <h1>Bienvenido</h1>
-          <p>Sistema de Gestión Escolar</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-sm">
+        <div className="text-center">
+          <h1 className="text-3xl font-light text-gray-800">Bienvenido</h1>
+          <p className="mt-2 text-sm text-gray-500">Sistema de Gestión Escolar</p>
         </div>
         
-        <div className="card-content">
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="input-label">Correo electrónico</label>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Correo electrónico
+              </label>
               <input
+                id="email"
+                name="email"
                 type="email"
-                className="input-field"
+                autoComplete="email"
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
               />
             </div>
 
-            <div className="form-group">
-              <label className="input-label">Contraseña</label>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Contraseña
+              </label>
               <input
+                id="password"
+                name="password"
                 type="password"
-                className="input-field"
+                autoComplete="current-password"
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
               />
             </div>
+          </div>
 
-            <button 
-              type="submit" 
-              className="btn btn-primary"
+          <div>
+            <button
+              type="submit"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
               disabled={isLoading}
             >
-              {isLoading ? 'Ingresando...' : 'Iniciar Sesión'}
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Ingresando...
+                </>
+              ) : 'Iniciar Sesión'}
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );
