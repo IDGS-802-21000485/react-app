@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// src/pages/Login.jsx
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import api from '../services/axiosConfig';
+import { AuthContext } from '../components/AuthContext';
 import './Login.css';
 
 function Login() {
@@ -10,6 +12,8 @@ function Login() {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -35,6 +39,8 @@ function Login() {
     try {
       const user = users.find(u => u.correo === email && u.contrasena === password);
       if (user) {
+        login(user); // Guarda el usuario en el contexto y localStorage
+        
         Swal.fire({
           icon: 'success',
           title: '¡Bienvenido!',
@@ -42,7 +48,9 @@ function Login() {
           timer: 1500,
           showConfirmButton: false,
         }).then(() => {
-          navigate('/dashboard');
+          // Redirige a la ruta que intentaban acceder o al dashboard por defecto
+          const from = location.state?.from?.pathname || '/dashboard';
+          navigate(from, { replace: true });
         });
       } else {
         Swal.fire({
@@ -128,7 +136,6 @@ function Login() {
         </form>
       </div>
     </div>
-  );
-}
+  );}
 
 export default Login;
