@@ -26,6 +26,7 @@ function Usuarios() {
     try {
       const response = await api.get("usuarios");
       setUsuarios(response.data);
+      mostrarExito("Usuario creado correctamente");
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
     }
@@ -114,12 +115,25 @@ function Usuarios() {
     });
   };
 
+  // Mostrar mensaje de éxito
+  const mostrarExito = (mensaje) => {
+    Swal.fire({
+      icon: "success",
+      title: "Éxito",
+      text: mensaje,
+      confirmButtonColor: "#4361ee",
+      timer: 2000,
+    });
+  };
+
   return (
     <div className="premium-container">
       <div className="premium-card">
         <div className="premium-header">
           <h2 className="premium-title">Administración de Usuarios</h2>
-          <p className="premium-subtitle">Gestiona los usuarios del sistema escolar</p>
+          <p className="premium-subtitle">
+            Gestiona los usuarios del sistema escolar
+          </p>
         </div>
 
         <div className="premium-content">
@@ -139,28 +153,43 @@ function Usuarios() {
 
               <div className="user-list-container">
                 {usuarios.length > 0 ? (
-                  usuarios.map((usuario) => (
-                    <div key={usuario._id} className="user-card">
-                      <div className="user-avatar">
-                        {usuario.nombre.charAt(0)}{usuario.apellidos.charAt(0)}
+                  usuarios
+                    .filter(
+                      (usuario) =>
+                        usuario.rol === "docente" ||
+                        usuario.rol === "administrativo"
+                    ) // Filtra solo Docente y Administrativo
+                    .map((usuario) => (
+                      <div key={usuario._id} className="user-card">
+                        <div className="user-avatar">
+                          {usuario.nombre.charAt(0)}
+                          {usuario.apellidos.charAt(0)}
+                        </div>
+                        <div className="user-info">
+                          <h4 className="user-name">
+                            {usuario.nombre} {usuario.apellidos}
+                          </h4>
+                          <p className="user-email">{usuario.correo}</p>
+                          <span className={`user-role ${usuario.rol}`}>
+                            {usuario.rol}
+                          </span>
+                        </div>
+                        <div className="user-actions">
+                          <button
+                            onClick={() => editarUsuario(usuario)}
+                            className="action-btn edit"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => confirmarEliminarUsuario(usuario)}
+                            className="action-btn delete"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
                       </div>
-                      <div className="user-info">
-                        <h4 className="user-name">
-                          {usuario.nombre} {usuario.apellidos}
-                        </h4>
-                        <p className="user-email">{usuario.correo}</p>
-                        <span className={`user-role ${usuario.rol}`}>{usuario.rol}</span>
-                      </div>
-                      <div className="user-actions">
-                        <button onClick={() => editarUsuario(usuario)} className="action-btn edit">
-                          Editar
-                        </button>
-                        <button onClick={() => confirmarEliminarUsuario(usuario)} className="action-btn delete">
-                          Eliminar
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                    ))
                 ) : (
                   <p className="no-results">No se encontraron usuarios.</p>
                 )}
@@ -235,15 +264,27 @@ function Usuarios() {
 
                 <div className="form-group">
                   <label className="form-label">Rol</label>
-                  <select name="rol" value={usuarioData.rol} onChange={manejarCambio} className="form-input">
+                  <select
+                    name="rol"
+                    value={usuarioData.rol}
+                    onChange={manejarCambio}
+                    className="form-input"
+                  >
                     <option value="docente">Docente</option>
-                    <option value="administrador">Administrador</option>
-                    <option value="estudiante">Estudiante</option>
+                    <option value="administrativo">Administrativo</option>
                   </select>
                 </div>
 
-                <button type="submit" className="submit-btn" disabled={isSubmitting}>
-                  {isSubmitting ? "Guardando..." : usuarioEditando ? "Actualizar" : "Registrar"}
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting
+                    ? "Guardando..."
+                    : usuarioEditando
+                    ? "Actualizar"
+                    : "Registrar"}
                 </button>
               </form>
             </div>
