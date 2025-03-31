@@ -26,7 +26,6 @@ function Usuarios() {
     try {
       const response = await api.get("usuarios");
       setUsuarios(response.data);
-      mostrarExito("Usuario creado correctamente");
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
     }
@@ -63,8 +62,12 @@ function Usuarios() {
     try {
       if (usuarioEditando) {
         await api.put(`usuarios/${usuarioEditando._id}`, usuarioData);
+        mostrarExito("Usuario actualizado correctamente");
+
       } else {
         await api.post("usuarios", usuarioData);
+        mostrarExito("Usuario creado correctamente");
+
       }
       await obtenerUsuarios();
       resetFormulario();
