@@ -380,3 +380,77 @@
   background: #ffb3c1;
   cursor: not-allowed;
 }
+
+/* Estilos para categorías ocupadas */
+.occupied-categories {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.occupied-categories h4 {
+  margin-bottom: 0.5rem;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.occupied-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.occupied-category {
+  padding: 0.5rem 1rem;
+  background-color: #e2e8f0;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.no-categories {
+  padding: 1rem;
+  text-align: center;
+  color: #64748b;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #e2e8f0;
+}
+
+.no-categories p {
+  margin: 0.5rem 0;
+}
+
+/* Mejoras para los cards de categoría */
+.category-card {
+  position: relative;
+}
+
+.category-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Deshabilitar categorías ocupadas visualmente */
+.category-card.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.category-card.disabled::after {
+  opacity: 1;
+}
+
+.category-card.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}

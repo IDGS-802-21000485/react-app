@@ -121,6 +121,19 @@ const GestionDocumentos = () => {
     fetchDocumentosUsuario();
   }, [usuarioSeleccionado]);
 
+  // Determinar categorías disponibles (no usadas aún por el usuario)
+  const categoriasDisponibles = categorias.filter(categoria => {
+    // Si no hay usuario seleccionado o no hay documentos, todas las categorías están disponibles
+    if (!usuarioSeleccionado || documentosUsuario.length === 0) {
+      return true;
+    }
+    
+    // Verificar si ya existe un documento en esta categoría para el usuario
+    return !documentosUsuario.some(doc => 
+      doc.categoriaId === categoria._id
+    );
+  });
+
   // Manejar selección de archivo
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -160,23 +173,37 @@ const GestionDocumentos = () => {
       return;
     }
 
+    // Verificar nuevamente que la categoría no tenga ya un documento
+    const categoriaYaUsada = documentosUsuario.some(
+      doc => doc.categoriaId === categoriaSeleccionada._id
+    );
+    
+    if (categoriaYaUsada) {
+      await Swal.fire({
+        icon: "error",
+        title: "Categoría ocupada",
+        text: "Esta categoría ya tiene un documento asignado. Por favor selecciona otra categoría.",
+        confirmButtonColor: "#3085d6",
+      });
+      return;
+    }
+
     setIsLoading((prev) => ({ ...prev, subida: true }));
 
     try {
       const documentoData = {
         nombreArchivo: documento.nombreArchivo,
         tipoArchivo: documento.tipoArchivo,
-        archivo: documento.archivo, // El base64 sin prefijo
+        archivo: documento.archivo,
         usuarioId: usuarioSeleccionado._id,
         categoriaId: categoriaSeleccionada._id,
       };
 
-      // Configuración de Axios para la petición
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
-        timeout: 30000, // 30 segundos de timeout
+        timeout: 30000,
       };
 
       const response = await api.post("/documentos", documentoData, config);
@@ -196,6 +223,7 @@ const GestionDocumentos = () => {
         );
         setDocumentosUsuario(docsResponse.data);
         setDocumento(null);
+        setCategoriaSeleccionada(null); // Resetear categoría seleccionada
 
         // Limpiar selección de archivo
         const fileInput = document.getElementById("file-input");
@@ -211,15 +239,12 @@ const GestionDocumentos = () => {
 
       let errorMessage = "No se pudo subir el documento";
       if (error.response) {
-        // El servidor respondió con un código de error
         errorMessage =
           error.response.data.message ||
           `Error del servidor: ${error.response.status}`;
       } else if (error.request) {
-        // La petición fue hecha pero no hubo respuesta
         errorMessage = "No se recibió respuesta del servidor";
       } else {
-        // Error al configurar la petición
         errorMessage = error.message || "Error al configurar la petición";
       }
 
@@ -246,7 +271,6 @@ const GestionDocumentos = () => {
       return;
     }
 
-    // Verificar si es un tipo de archivo que podemos mostrar en el navegador
     const tiposVisualizables = [
       "application/pdf",
       "image/jpeg",
@@ -273,7 +297,6 @@ const GestionDocumentos = () => {
       return;
     }
 
-    // Crear un blob y URL para el documento
     try {
       const blob = base64ToBlob(doc.archivo, doc.tipoArchivo);
       if (!blob) {
@@ -281,8 +304,6 @@ const GestionDocumentos = () => {
       }
 
       const url = URL.createObjectURL(blob);
-
-      // Abrir en nueva pestaña
       const newWindow = window.open(url, "_blank");
 
       if (!newWindow) {
@@ -353,7 +374,6 @@ const GestionDocumentos = () => {
       document.body.appendChild(link);
       link.click();
 
-      // Limpiar después de un breve retraso
       setTimeout(() => {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
@@ -377,8 +397,7 @@ const GestionDocumentos = () => {
     }
   };
 
-  // En tu componente GestionDocumentos.jsx
-
+  // Eliminar documento
   const eliminarDocumento = async (doc) => {
     const { isConfirmed } = await Swal.fire({
       title: "¿Eliminar documento?",
@@ -395,21 +414,27 @@ const GestionDocumentos = () => {
 
     try {
       setIsLoading((prev) => ({ ...prev, [doc._id]: true }));
-      console.log("Eliminando documento:", doc._id);
-      const response = await api.delete(`/documentos/${doc._id}`);
+      await api.delete(`/documentos/${doc._id}`);
 
-        await Swal.fire({
-          icon: "success",
-          title: "Documento eliminado",
-          text: response.data.mensaje,
-          confirmButtonColor: "#3085d6",
-          timer: 2000,
-        });
+      await Swal.fire({
+        icon: "success",
+        title: "Documento eliminado",
+        text: "El documento ha sido eliminado correctamente",
+        confirmButtonColor: "#3085d6",
+        timer: 2000,
+      });
 
-        // Actualizar la lista de documentos
-        const updatedDocs = documentosUsuario.filter((d) => d._id !== doc._id);
-        setDocumentosUsuario(updatedDocs);
-  
+      // Actualizar la lista de documentos
+      const updatedDocs = documentosUsuario.filter((d) => d._id !== doc._id);
+      setDocumentosUsuario(updatedDocs);
+    } catch (error) {
+      console.error("Error al eliminar documento:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo eliminar el documento",
+        confirmButtonColor: "#3085d6",
+      });
     } finally {
       setIsLoading((prev) => ({ ...prev, [doc._id]: false }));
     }
@@ -432,31 +457,37 @@ const GestionDocumentos = () => {
             ) : (
               <div className="users-grid">
                 {Array.isArray(usuarios) && usuarios.length > 0 ? (
-                  usuarios.map((usuario) => (
-                    <div
-                      key={usuario._id}
-                      className={`user-card ${
-                        usuarioSeleccionado?._id === usuario._id
-                          ? "selected"
-                          : ""
-                      }`}
-                      onClick={() => setUsuarioSeleccionado(usuario)}
-                    >
-                      <div className="user-avatar">
-                        {usuario.nombre.charAt(0)}
-                        {usuario.apellidos.charAt(0)}
+                  usuarios
+                    .filter(
+                      (usuario) =>
+                        usuario.rol === "docente" ||
+                        usuario.rol === "administrativo"
+                    )
+                    .map((usuario) => (
+                      <div
+                        key={usuario._id}
+                        className={`user-card ${
+                          usuarioSeleccionado?._id === usuario._id
+                            ? "selected"
+                            : ""
+                        }`}
+                        onClick={() => setUsuarioSeleccionado(usuario)}
+                      >
+                        <div className="user-avatar">
+                          {usuario.nombre.charAt(0)}
+                          {usuario.apellidos.charAt(0)}
+                        </div>
+                        <div className="user-info">
+                          <h4>
+                            {usuario.nombre} {usuario.apellidos}
+                          </h4>
+                          <p>{usuario.correo}</p>
+                          <span className={`user-role ${usuario.rol}`}>
+                            {usuario.rol}
+                          </span>
+                        </div>
                       </div>
-                      <div className="user-info">
-                        <h4>
-                          {usuario.nombre} {usuario.apellidos}
-                        </h4>
-                        <p>{usuario.correo}</p>
-                        <span className={`user-role ${usuario.rol}`}>
-                          {usuario.rol}
-                        </span>
-                      </div>
-                    </div>
-                  ))
+                    ))
                 ) : (
                   <p>No hay usuarios disponibles</p>
                 )}
@@ -473,8 +504,8 @@ const GestionDocumentos = () => {
               ) : (
                 <>
                   <div className="categories-grid">
-                    {Array.isArray(categorias) && categorias.length > 0 ? (
-                      categorias.map((categoria) => (
+                    {categoriasDisponibles.length > 0 ? (
+                      categoriasDisponibles.map((categoria) => (
                         <div
                           key={categoria._id}
                           className={`category-card ${
@@ -488,9 +519,31 @@ const GestionDocumentos = () => {
                         </div>
                       ))
                     ) : (
-                      <p>No hay categorías disponibles</p>
+                      <div className="no-categories">
+                        <p>Todas las categorías tienen documentos asignados.</p>
+                        <p>Elimina un documento existente para subir uno nuevo.</p>
+                      </div>
                     )}
                   </div>
+
+                  {/* Mostrar categorías ocupadas como información */}
+                  {documentosUsuario.length > 0 && (
+                    <div className="occupied-categories">
+                      <h4>Categorías ocupadas:</h4>
+                      <div className="occupied-list">
+                        {documentosUsuario.map((doc) => {
+                          const categoria = categorias.find(
+                            (c) => c._id === doc.categoriaId
+                          );
+                          return categoria ? (
+                            <span key={doc._id} className="occupied-category">
+                              {categoria.nombreCategoria}
+                            </span>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {categoriaSeleccionada && (
                     <div className="file-upload">
