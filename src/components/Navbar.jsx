@@ -77,7 +77,7 @@ function Navbar() {
           
           <div className="user-section">
             {user && (
-              <div className="user-info-navbar">
+              <div className="user-info">
                 <div className="user-avatar">
                   {user.nombre ? user.nombre.charAt(0).toUpperCase() : 'U'}
                 </div>

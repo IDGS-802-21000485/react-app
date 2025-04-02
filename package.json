@@ -18,7 +18,9 @@
     "react-modal": "^3.16.3",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.4.0",
-    "sweetalert2": "^11.17.2"
+    "sweetalert2": "^11.17.2",
+    "vite-plugin-pwa": "^1.0.0",
+    "workbox-webpack-plugin": "^7.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
