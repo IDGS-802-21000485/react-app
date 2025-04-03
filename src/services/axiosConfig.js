@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api/', // URL del backend Express
+  baseURL: 'https://gestiondocumentalapi.onrender.com/api/', // URL del backend Express
   timeout: 10000,
 });
 

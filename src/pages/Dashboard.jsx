@@ -18,9 +18,9 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const [docsRes, catsRes, usersRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/documentos'),
-          axios.get('http://localhost:5000/api/categorias'),
-          axios.get('http://localhost:5000/api/usuarios')
+          axios.get('https://gestiondocumentalapi.onrender.com/api/documentos'),
+          axios.get('https://gestiondocumentalapi.onrender.com/api/categorias'),
+          axios.get('https://gestiondocumentalapi.onrender.com/api/usuarios')
         ]);
 
         setStats({
