@@ -37,7 +37,8 @@ function Login() {
     setIsLoading(true);
     
     try {
-      const user = users.find(u => u.correo === email && u.contrasena === password);
+      const user = users.find(u => u.correo === email && u.contrasena === password && u.rol === 'administrador');
+      console.log(user); // Debugging line
       if (user) {
         login(user); // Guarda el usuario en el contexto y localStorage
         
